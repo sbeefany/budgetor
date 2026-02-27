@@ -1,5 +1,26 @@
 spring:
   application:
     name: budgetor
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB:budgetor}
+    username: ${POSTGRES_USER:budgetor}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        model: mistral
+
 server:
   port: 8080

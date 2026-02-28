@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: none
   application:
     name: budgetor
   datasource:
@@ -21,6 +23,10 @@ spring:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       chat:
         model: mistral
+
+logging:
+  file:
+    name: logs/application.log
 
 server:
   port: 8080

@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
 
-    <!-- Empty master changelog for initial startup -->
+    <!-- Schema migrations -->
+    <include file="db/changelog/changes/001-initial-schema.xml"/>
 
 </databaseChangeLog>

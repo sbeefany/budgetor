@@ -10,7 +10,7 @@ This phase sets up the base project structure.
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | CORE-1 | Infrastructure | P0 | complete | Configure Spring Boot project properties, application.yaml, and dependencies (PostgreSQL, Spring AI, Telegram API). Setup Docker compose for local DB. | Application starts and connects to local PostgreSQL. |
 | CORE-2 | Database | P0 | complete | Create Flyway/Liquibase schema migrations for `categories`, `transactions`, and `goals` tables. | Migrations apply successfully on startup. |
-| CORE-3 | Domain | P0 | TODO | Create JPA Entities (`Category`, `Transaction`, `Goal`) and Spring Data Repositories. | Entities are correctly mapped to tables. |
+| CORE-3 | Domain | P0 | complete | Create JPA Entities (`Category`, `Transaction`, `Goal`) and Spring Data Repositories. | Entities are correctly mapped to tables. |
 
 ## Phase 2: Independent Core Services (Highly Parallelizable)
 Once Domain boundaries are defined, these services can be implemented concurrently.

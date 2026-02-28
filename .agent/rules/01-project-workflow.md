@@ -23,7 +23,8 @@ This document outlines the mandatory project development pipeline. All tasks mus
     - The actual **manual testing** is performed by the human User. The AI provides instructions on how to run/test the current snapshot.
     - **Cleanup Rule**: The developer must delete any extra support log files generated during debugging before marking a task as ready for review.
 7. **Review**
-Before move task to complete you should get result to review. User can write some comments about solutions.
+    - After completing development and automated testing, the AI must change the task status to `review` in `backlog.md`.
+    - Provide the user with the result to review. Wait for the user's decision.
 8. **Feedback**: 
-    - If manual testing passes, the AI must automatically update `backlog.md`, changing the task status to `complete`.
-    - If manual testing fails, a **Bug** is created in the backlog, prioritized, and sent back through the pipeline.
+    - If the user approves (manual testing passes / review is OK), the AI must automatically change the task status to `complete` in `backlog.md`, and only then **commit and push the task**.
+    - If manual testing fails or the user requests changes, a **Bug** is created in the backlog, prioritized, and sent back through the pipeline, or changes are made directly in the active branch.

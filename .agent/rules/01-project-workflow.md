@@ -25,5 +25,5 @@ This document outlines the mandatory project development pipeline. All tasks mus
 7. **Review**
 Before move task to complete you should get result to review. User can write some comments about solutions.
 8. **Feedback**: 
-    - If manual testing passes, the task is marked as `Complete`.
+    - If manual testing passes, the AI must automatically update `backlog.md`, changing the task status to `complete`.
     - If manual testing fails, a **Bug** is created in the backlog, prioritized, and sent back through the pipeline.

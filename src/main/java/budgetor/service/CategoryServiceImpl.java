@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -66,5 +67,11 @@ public class CategoryServiceImpl implements CategoryService {
                     log.info("Creating new user-defined category: {}", name);
                     return categoryRepository.save(category);
                 });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Category> getCategoryByName(String name) {
+        return categoryRepository.findByNameIgnoreCase(name);
     }
 }

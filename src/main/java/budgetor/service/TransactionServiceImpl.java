@@ -112,4 +112,14 @@ public class TransactionServiceImpl implements TransactionService {
 
         balanceRepository.save(balance);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal calculateTotalSpentCategory(budgetor.domain.Category category, java.time.LocalDateTime start,
+            java.time.LocalDateTime end, TransactionType type) {
+        return transactionRepository.findByCategoryAndTransactionDateBetweenAndType(category, start, end, type)
+                .stream()
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

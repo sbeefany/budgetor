@@ -23,6 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
+
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 
@@ -247,5 +249,44 @@ class TransactionServiceTest {
 
         var savedBalance = balanceCaptor.getValue();
         assertThat(savedBalance.getAmount()).isEqualTo(new BigDecimal("500.00")); // Income removed, balance goes down
+    }
+
+    @Test
+    void shouldCalculateTotalSpentByCategory() {
+        // Given
+        var category = new Category("Еда", TransactionType.EXPENSE, true);
+        var start = LocalDateTime.now().minusDays(10);
+        var end = LocalDateTime.now();
+        var type = TransactionType.EXPENSE;
+
+        var t1 = new Transaction(new BigDecimal("150.00"), category, "Обед", start.plusDays(1), type);
+        var t2 = new Transaction(new BigDecimal("350.00"), category, "Ужин", start.plusDays(2), type);
+
+        when(transactionRepository.findByCategoryAndTransactionDateBetweenAndType(category, start, end, type))
+                .thenReturn(List.of(t1, t2));
+
+        // When
+        var total = transactionService.calculateTotalSpentCategory(category, start, end, type);
+
+        // Then
+        assertThat(total).isEqualTo(new BigDecimal("500.00"));
+    }
+
+    @Test
+    void shouldReturnZeroTotalSpentWhenNoTransactionsMatch() {
+        // Given
+        var category = new Category("Еда", TransactionType.EXPENSE, true);
+        var start = LocalDateTime.now().minusDays(10);
+        var end = LocalDateTime.now();
+        var type = TransactionType.EXPENSE;
+
+        when(transactionRepository.findByCategoryAndTransactionDateBetweenAndType(category, start, end, type))
+                .thenReturn(List.of());
+
+        // When
+        var total = transactionService.calculateTotalSpentCategory(category, start, end, type);
+
+        // Then
+        assertThat(total).isEqualTo(BigDecimal.ZERO);
     }
 }

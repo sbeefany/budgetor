@@ -2,6 +2,7 @@ package budgetor.service;
 
 import budgetor.domain.Transaction;
 import budgetor.domain.TransactionType;
+import budgetor.domain.Category;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -28,4 +29,11 @@ public interface TransactionService {
      * Deletes a transaction by its ID and reverses its effect on the balance.
      */
     void deleteTransaction(UUID transactionId);
+
+    /**
+     * Calculates the total amount spent for a specific category within a date range
+     * via Java stream logic.
+     */
+    BigDecimal calculateTotalSpentCategory(Category category, java.time.LocalDateTime start,
+            java.time.LocalDateTime end, TransactionType type);
 }

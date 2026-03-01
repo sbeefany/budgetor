@@ -8,4 +8,6 @@ public interface CategoryService {
     void initializeDefaults();
 
     Category getOrCreateCategory(String name, TransactionType type);
+
+    java.util.Optional<Category> getCategoryByName(String name);
 }

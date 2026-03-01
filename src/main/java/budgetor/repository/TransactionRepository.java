@@ -16,4 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     List<Transaction> findByCategoryAndTransactionDateBetweenAndType(Category category, LocalDateTime start,
             LocalDateTime end, TransactionType type);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = { "category" })
+    List<Transaction> findByTransactionDateBetweenAndType(LocalDateTime start, LocalDateTime end, TransactionType type);
 }

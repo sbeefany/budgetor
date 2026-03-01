@@ -16,7 +16,7 @@ This phase sets up the base project structure.
 Once Domain boundaries are defined, these services can be implemented concurrently.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| SRV-1 | Category Service | P0 | TODO | Service to load default categories from `resources/categories.json`. Handle deduplication matching for AI-created categories. | Defaults populated on startup; duplicates rejected (ignoring case). |
+| SRV-1 | Category Service | P0 | complete | Service to load default categories from `resources/categories.json`. Handle deduplication matching for AI-created categories. | Defaults populated on startup; duplicates rejected (ignoring case). |
 | SRV-2 | Transaction Service | P0 | TODO | Logic to create income/expenses, calculate current balance, and handle deletions (US-2, US-3, US-4). | Service properly saves transactions and aggregates current balance. |
 | SRV-3 | Goal Service | P0 | TODO | Logic to manage savings targets and category budget limits. Compute progress (US-7, US-8, US-9). | Returns saved vs. target ratio and budget usage state. |
 | SRV-4 | Summary Service | P0 | TODO | Aggregate spending summaries (today / week / month) grouped by category (US-5). | Returns structured aggregation data. |

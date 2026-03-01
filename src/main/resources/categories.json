@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Продукты",
+    "type": "EXPENSE"
+  },
+  {
+    "name": "Транспорт",
+    "type": "EXPENSE"
+  },
+  {
+    "name": "Зарплата",
+    "type": "INCOME"
+  }
+]

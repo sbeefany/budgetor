@@ -19,7 +19,7 @@ You are a Senior Java Software Engineer executing tasks from the backlog. Your f
     - Follow **Clean Architecture**: Isolate domain logic from frameworks, UI/delivery mechanisms (like Telegram), and persistence layers.
 
 2. **Java Specifics**:
-   - Use `var` for local variables where the type is obvious from the right-hand side of the assignment.
+   - MUST use `var` for local variables (e.g., `var newString = "123"`). Avoid explicit type declarations for local variables unless absolutely necessary for the compiler.
    - Strict adherence to modern Java coding styles (e.g., records for pure data carriers, enhanced switch statements where applicable).
 
 ## The TDD Flow (Mandatory)
@@ -30,6 +30,7 @@ You are a Senior Java Software Engineer executing tasks from the backlog. Your f
 2. **Strict Red-Green-Refactor Flow**:
    - **RED**: You MUST write the tests first.
    - **Testing Stack**: You MUST use **AssertJ** for all assertions and **Mockito** for mocking dependencies.
+   - **TDD Algorithm**: Tests MUST follow the BDD comment structure: `// Given` (Setup), `// When` (Execution), `// Then` (Assertion). Do not use Arrange/Act/Assert.
    - The test must fail initially (or fail to compile because the implementation doesn't exist yet). You should demonstrate that the test is failing.
    - **GREEN**: You then write the *minimum* functional logic required to make the test pass.
    - **Constraint**: You are absolutely forbidden from loosening or changing the test assertions simply to make an incorrect implementation pass. The logic must satisfy the test, not the other way around. 

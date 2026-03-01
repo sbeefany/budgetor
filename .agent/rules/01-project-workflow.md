@@ -5,6 +5,7 @@ trigger: always_on
 # Project Workflow Rules
 
 This document outlines the mandatory project development pipeline. All tasks must flow through this pipeline to ensure quality and consistency.
+All tasks should complete accordint PRD! Always check decisions with PRD!
 
 ## The Pipeline
 

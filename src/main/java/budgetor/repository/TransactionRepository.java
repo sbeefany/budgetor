@@ -1,6 +1,8 @@
 package budgetor.repository;
 
 import budgetor.domain.Transaction;
+
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findByCategoryAndTransactionDateBetweenAndType(Category category, LocalDateTime start,
             LocalDateTime end, TransactionType type);
 
-    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = { "category" })
+    @EntityGraph(attributePaths = { "category" })
     List<Transaction> findByTransactionDateBetweenAndType(LocalDateTime start, LocalDateTime end, TransactionType type);
 }

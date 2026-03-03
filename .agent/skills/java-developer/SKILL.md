@@ -21,6 +21,8 @@ You are a Senior Java Software Engineer executing tasks from the backlog. Your f
 2. **Java Specifics**:
    - MUST use `var` for local variables (e.g., `var newString = "123"`). Avoid explicit type declarations for local variables unless absolutely necessary for the compiler.
    - Strict adherence to modern Java coding styles (e.g., records for pure data carriers, enhanced switch statements where applicable).
+   - **Imports**: Avoid using fully qualified class names in the code (e.g., avoid `@org.junit.jupiter.api.BeforeEach void setUp()`). ALWAYS import the classes at the top of the file and use their simple names instead (e.g., `@BeforeEach`).
+   - **Logging**: All caught exceptions MUST be properly logged (e.g., using SLF4J `log.error(...)` with the exception object) so that failures can be traced.
 
 ## The TDD Flow (Mandatory)
 

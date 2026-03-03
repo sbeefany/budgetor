@@ -1,5 +1,7 @@
 package budgetor.service;
 
+import java.util.Optional;
+
 import budgetor.domain.Category;
 import budgetor.domain.TransactionType;
 
@@ -9,5 +11,5 @@ public interface CategoryService {
 
     Category getOrCreateCategory(String name, TransactionType type);
 
-    java.util.Optional<Category> getCategoryByName(String name);
+    Optional<Category> getCategoryByName(String name);
 }

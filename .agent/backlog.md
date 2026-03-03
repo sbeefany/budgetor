@@ -20,7 +20,7 @@ Once Domain boundaries are defined, these services can be implemented concurrent
 | SRV-2 | Transaction Service | P0 | complete | Logic to create income/expenses, calculate current balance, and handle deletions (US-2, US-3, US-4). | Service properly saves transactions and aggregates current balance. |
 | SRV-3 | Goal Service | P0 | complete | Logic to manage savings targets and category budget limits. Compute progress (US-7, US-8, US-9). | Returns saved vs. target ratio and budget usage state. |
 | SRV-4 | Summary Service | P0 | complete | Aggregate spending summaries (today / week / month) grouped by category (US-5). | Returns structured aggregation data. |
-| SRV-5 | Tip Service | P1 | TODO | Generate and retrieve basic financial tips based on spending context (US-10). | Tip string is successfully returned. |
+| SRV-5 | Tip Service | P1 | complete | Generate and retrieve basic financial tips based on spending context (US-10). | Tip string is successfully returned. |
 
 ## Phase 3: AI & Parsing Engine (Highly Parallelizable)
 Can be worked on with mocked business services.
@@ -38,3 +38,8 @@ Can be developed leveraging mocked Core Services and AI.
 | BOT-3 | AI Integration | P0 | TODO | Route arbitrary free-text strings to the AI Parser -> save via Transaction Service -> respond. | User sends text; transaction saves; success message returned. |
 | BOT-4 | Cancel Button | P0 | TODO | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |
 | BOT-5 | Commands Config | P0 | TODO | Bind Telegram inline button callbacks to BalanceService, SummaryService, GoalService outputs. | Pressing "Баланс" replies with the formatted balance. |
+
+## Phase 5: Localization & Tech Debt
+| Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| LOC-1 | I18n | P2 | TODO | Extract hardcoded Russian strings from code (services/bot) to MessageSource or resource properties files for localization. | No hardcoded Russian strings remain in the Java codebase. |

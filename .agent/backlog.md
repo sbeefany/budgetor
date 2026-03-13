@@ -29,7 +29,15 @@ Can be worked on with mocked business services.
 | AI-1 | Engine Setup | P0 | complete | Configure Spring AI client for Ollama (Mistral). Provide connection properties. | Can ping the AI model locally. |
 | AI-2 | Transaction Parser | P0 | TODO | Implement the prompt engineering. Takes user text + available categories and returns structured JSON (amount, category, description, type). (US-1) | Reliably parses "обед 350" to `{"amount":350, "category":"Еда", "type":"EXPENSE"}`. |
 
-## Phase 4: Telegram Bot Interface (Highly Parallelizable)
+## Phase 4: Local CLI Interface
+This phase ensures all user activities can be executed and tested via a local CLI environment, allowing us to test the LLM and core features without a finished Telegram Bot.
+| Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| CLI-1 | CLI Interactivity | P0 | TODO | Setup an interactive local CLI loop (e.g. using `Scanner` or Spring Shell) for local run. | App accepts interactive CLI commands when running locally. |
+| CLI-2 | CLI Main Menu | P0 | TODO | Implement text-based triggers for Balance, Summary, Goals, Categories, Tips. | User can trigger and view outputs for all core services in CLI. |
+| CLI-3 | CLI AI Parser | P0 | TODO | Route free-text input in CLI to the AI Parser and save via TransactionService. | Typing free-text expenses in CLI parses and saves them. |
+
+## Phase 5: Telegram Bot Interface (Highly Parallelizable)
 Can be developed leveraging mocked Core Services and AI.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -39,7 +47,14 @@ Can be developed leveraging mocked Core Services and AI.
 | BOT-4 | Cancel Button | P0 | TODO | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |
 | BOT-5 | Commands Config | P0 | TODO | Bind Telegram inline button callbacks to BalanceService, SummaryService, GoalService outputs. | Pressing "Баланс" replies with the formatted balance. |
 
-## Phase 5: Localization & Tech Debt
+## Phase 6: Localization & Tech Debt
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | LOC-1 | I18n | P2 | TODO | Extract hardcoded Russian strings from code (services/bot) to MessageSource or resource properties files for localization. | No hardcoded Russian strings remain in the Java codebase. |
+
+## Phase 7: Future Features (Usual Expenses)
+| Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| CORE-4 | Usual Expenses | P1 | TODO | Create JPA Entity (`UsualExpense`), Repository, and DB migration. | Entity is mapped, Flyway migration successful. |
+| SRV-6 | Usual Expenses | P1 | TODO | Logic to save and fetch "usual" or frequent expenses templates. | User can define templates for frequent expenses and list them. |
+| BOT-6 | Usual Expenses UI | P1 | TODO | UI elements to show and add usual expenses. | User can pick a usual expense to add it quickly. |

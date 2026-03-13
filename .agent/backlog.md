@@ -26,7 +26,7 @@ Once Domain boundaries are defined, these services can be implemented concurrent
 Can be worked on with mocked business services.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| AI-1 | Engine Setup | P0 | review | Configure Spring AI client for Ollama (Mistral). Provide connection properties. | Can ping the AI model locally. |
+| AI-1 | Engine Setup | P0 | complete | Configure Spring AI client for Ollama (Mistral). Provide connection properties. | Can ping the AI model locally. |
 | AI-2 | Transaction Parser | P0 | TODO | Implement the prompt engineering. Takes user text + available categories and returns structured JSON (amount, category, description, type). (US-1) | Reliably parses "обед 350" to `{"amount":350, "category":"Еда", "type":"EXPENSE"}`. |
 
 ## Phase 4: Telegram Bot Interface (Highly Parallelizable)

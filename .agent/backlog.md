@@ -27,7 +27,7 @@ Can be worked on with mocked business services.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | AI-1 | Engine Setup | P0 | complete | Configure Spring AI client for Ollama (Mistral). Provide connection properties. | Can ping the AI model locally. |
-| AI-2 | Transaction Parser | P0 | TODO | Implement the prompt engineering. Takes user text + available categories and returns structured JSON (amount, category, description, type). (US-1) | Reliably parses "обед 350" to `{"amount":350, "category":"Еда", "type":"EXPENSE"}`. |
+| AI-2 | Transaction Parser | P0 | complete | Implement the prompt engineering. Takes user text + available categories and returns structured JSON (amount, category, description, type). (US-1) | Reliably parses "обед 350" to `{"amount":350, "category":"Еда", "type":"EXPENSE"}`. |
 
 ## Phase 4: Local CLI Interface
 This phase ensures all user activities can be executed and tested via a local CLI environment, allowing us to test the LLM and core features without a finished Telegram Bot.

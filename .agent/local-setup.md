@@ -1,44 +1,44 @@
-# Local Environment Setup Guide
+# Руководство по локальной настройке окружения
 
-This document explains how to run the Budgetor application locally for testing and development, specifically starting PostgreSQL and the Ollama LLM.
+В этом документе объясняется, как запустить приложение Budgetor локально для тестирования и разработки, в частности, как запустить PostgreSQL и LLM Ollama.
 
-## Prerequisites
-1. **Docker**: Installed and running (for the database).
-2. **Ollama**: Installed from [ollama.com](https://ollama.com/download).
-3. **Java 21**: Installed and configured.
+## Необходимые компоненты (Что нужно установить)
+1. **Docker**: Установлен и запущен (для базы данных).
+2. **Ollama**: Установлена с сайта [ollama.com](https://ollama.com/download).
+3. **Java 21**: Установлена и настроена.
 
-## Step 1: Start PostgreSQL (Database)
-The project uses a standard PostgreSQL database. A `docker-compose.yml` file is provided in the project root to start it easily.
+## Шаг 1: Запуск PostgreSQL (База данных)
+Проект использует стандартную базу данных PostgreSQL. В корне проекта предоставлен файл `docker-compose.yml` для легкого запуска.
 
-From the project root directory, run:
+Из корневой директории проекта выполните:
 ```bash
 docker-compose up -d
 ```
-*This starts the database on port 5432 with the credentials defined in `application.yaml`.*
+*Это запустит базу данных на порту 5432 с учетными данными, определенными в `application.yaml`.*
 
-## Step 2: Start Local LLM (Ollama)
-The application expects a local instance of the `mistral` model to process natural language inputs.
+## Шаг 2: Запуск локальной LLM (Ollama)
+Приложение ожидает локальный экземпляр модели `mistral` для обработки ввода на естественном языке.
 
-Open a new terminal window and run:
+Откройте новое окно терминала и выполните:
 ```bash
 ollama run mistral
 ```
-*Leave this window open or running in the background.*
+*Оставьте это окно открытым или работающим в фоновом режиме.*
 
-## Step 3: Run the Application
-You can now start the Spring Boot application. It will automatically connect to the database (and apply Flyway/Liquibase migrations) and the local Ollama instance.
+## Шаг 3: Как запустить приложение
+Теперь вы можете запустить приложение Spring Boot. Оно автоматически подключится к базе данных (и применит миграции Flyway/Liquibase) и к локальному экземпляру Ollama.
 
-From the project root directory, run:
+Из корневой директории проекта выполните:
 ```bash
 ./gradlew bootRun
 ```
 
-Or, run the `Application.java` main class directly from your IDE.
+Или запустите главный класс `Application.java` напрямую из вашей IDE.
 
-## Step 4: Local Terminal Testing (CLI Mode)
-If you want to test the AI functionality directly through the terminal without involving Telegram, the project now includes a CLI.
+## Шаг 4: Локальное тестирование в терминале (Режим CLI)
+Если вы хотите протестировать ИИ-функциональность напрямую через терминал без использования Telegram, в проект встроен CLI.
 
-To start the application with the terminal test interface active, set the `local-cli` profile:
+Чтобы запустить приложение с активным тестовым интерфейсом терминала, установите профиль `local-cli`:
 
 **Powershell:**
 ```powershell
@@ -51,4 +51,4 @@ $env:SPRING_PROFILES_ACTIVE="local-cli"
 SPRING_PROFILES_ACTIVE=local-cli ./gradlew bootRun
 ```
 
-When it finishes loading, look at the terminal. It will say `Budgetor Local CLI Started!` and provide a `You:` prompt where you can chat with Ollama.
+Когда загрузка завершится, посмотрите в терминал. Там будет написано `Budgetor Local CLI Started!` и появится приглашение `You:`, где вы сможете общаться с Ollama.

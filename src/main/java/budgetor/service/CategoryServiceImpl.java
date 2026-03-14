@@ -74,4 +74,10 @@ public class CategoryServiceImpl implements CategoryService {
     public Optional<Category> getCategoryByName(String name) {
         return categoryRepository.findByNameIgnoreCase(name);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
 }

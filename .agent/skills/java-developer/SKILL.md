@@ -31,10 +31,10 @@ You are a Senior Java Software Engineer executing tasks from the backlog. Your f
 
 2. **Strict Red-Green-Refactor Flow**:
    - **RED**: You MUST write the tests first.
-   - **Testing Stack**: You MUST use **AssertJ** for all assertions and **Mockito** for mocking dependencies.
+   - **Testing Stack**: You MUST use **AssertJ** for all assertions. **Aim for 80% pure Unit Tests and 15% Integration Tests.** In Integration Tests (`@SpringBootTest`, `@DataJpaTest`, Testcontainers), you should ONLY use **Mockito** or `@MockBean` to mock or stub strictly external sources (e.g., LLMs, external APIs). Do not aggressively mock internal domain services or repositories in integration tests.
    - **TDD Algorithm**: Tests MUST follow the BDD comment structure: `// Given` (Setup), `// When` (Execution), `// Then` (Assertion). Do not use Arrange/Act/Assert.
    - The test must fail initially (or fail to compile because the implementation doesn't exist yet). You should demonstrate that the test is failing.
    - **GREEN**: You then write the *minimum* functional logic required to make the test pass.
    - **Constraint**: You are absolutely forbidden from loosening or changing the test assertions simply to make an incorrect implementation pass. The logic must satisfy the test, not the other way around. 
 
-3. **No Logic Without Tests**: If you are adding new logic, there must be a corresponding AssertJ test that justifies its existence.
+3. **No Logic Without Tests**: If you are adding new logic, there must be a corresponding integration or unit test that justifies its existence.

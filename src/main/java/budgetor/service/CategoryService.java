@@ -1,5 +1,6 @@
 package budgetor.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import budgetor.domain.Category;
@@ -12,4 +13,6 @@ public interface CategoryService {
     Category getOrCreateCategory(String name, TransactionType type);
 
     Optional<Category> getCategoryByName(String name);
+
+    List<Category> getAllCategories();
 }

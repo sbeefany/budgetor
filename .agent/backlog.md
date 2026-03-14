@@ -33,9 +33,9 @@ Can be worked on with mocked business services.
 This phase ensures all user activities can be executed and tested via a local CLI environment, allowing us to test the LLM and core features without a finished Telegram Bot.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| CLI-1 | CLI Interactivity | P0 | TODO | Setup an interactive local CLI loop (e.g. using `Scanner` or Spring Shell) for local run. | App accepts interactive CLI commands when running locally. |
-| CLI-2 | CLI Main Menu | P0 | TODO | Implement text-based triggers for Balance, Summary, Goals, Categories, Tips. | User can trigger and view outputs for all core services in CLI. |
-| CLI-3 | CLI AI Parser | P0 | TODO | Route free-text input in CLI to the AI Parser and save via TransactionService. | Typing free-text expenses in CLI parses and saves them. |
+| CLI-1 | CLI Interactivity | P0 | complete | Setup an interactive local CLI loop (e.g. using `Scanner` or Spring Shell) for local run. | App accepts interactive CLI commands when running locally. |
+| CLI-2 | CLI Main Menu | P0 | complete | Implement text-based triggers for Balance, Summary, Goals, Categories, Tips. | User can trigger and view outputs for all core services in CLI. |
+| CLI-3 | CLI AI Parser | P0 | complete | Route free-text input in CLI to the AI Parser and save via TransactionService. | Typing free-text expenses in CLI parses and saves them. |
 
 ## Phase 5: Telegram Bot Interface (Highly Parallelizable)
 Can be developed leveraging mocked Core Services and AI.

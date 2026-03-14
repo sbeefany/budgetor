@@ -94,4 +94,18 @@ class CategoryServiceTest {
                 cat.getName().equals("Coffee") && cat.getType() == TransactionType.EXPENSE && !cat.isDefault()
         ));
     }
+
+    @Test
+    void getAllCategories_shouldReturnAllCategories() {
+        // Given
+        var cat1 = new Category("Food", TransactionType.EXPENSE, true);
+        var cat2 = new Category("Salary", TransactionType.INCOME, true);
+        when(categoryRepository.findAll()).thenReturn(java.util.List.of(cat1, cat2));
+
+        // When
+        var result = categoryService.getAllCategories();
+
+        // Then
+        assertThat(result).hasSize(2).containsExactlyInAnyOrder(cat1, cat2);
+    }
 }

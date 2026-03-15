@@ -42,8 +42,8 @@ This phase ensures all user activities can be executed and tested via a local CL
 Can be developed leveraging mocked Core Services and AI.
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| BOT-1 | Bot Foundation | P0 | review | Setup Telegram interaction handler and message router. Implement `/start`. | Bot replies to the start command. |
-| BOT-2 | Main Menu UI | P0 | TODO | Implement the base Inline Keyboard returning Balance, Summary, Goals, Categories, Tips. | Menu is shown; button callbacks route properly. |
+| BOT-1 | Bot Foundation | P0 | complete | Setup Telegram interaction handler and message router. Implement `/start`. | Bot replies to the start command. |
+| BOT-2 | Main Menu UI | P0 | review | Implement the base Inline Keyboard returning Balance, Summary, Goals, Categories, Tips. | Menu is shown; button callbacks route properly. |
 | BOT-3 | AI Integration | P0 | TODO | Route arbitrary free-text strings to the AI Parser -> save via Transaction Service -> respond. | User sends text; transaction saves; success message returned. |
 | BOT-3.1 | Photo Input | P1 | TODO | Route photo messages to AI Vision parser -> save via Transaction Service -> respond. | User sends photo; transaction saves; success message returned. |
 | BOT-4 | Cancel Button | P0 | TODO | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |

@@ -1,5 +1,9 @@
 package budgetor.bot;
 
+import budgetor.dto.ParsedTransactionDto;
+import budgetor.service.CategoryService;
+import budgetor.service.TransactionParser;
+import budgetor.service.TransactionService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,10 +24,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
     private final BotConfig config;
+    private final TransactionService transactionService;
+    private final CategoryService categoryService;
+    private final TransactionParser transactionParser;
 
-    public TelegramBot(BotConfig config) {
+    public TelegramBot(BotConfig config,
+                       TransactionService transactionService,
+                       CategoryService categoryService,
+                       TransactionParser transactionParser) {
         super(config.getToken());
         this.config = config;
+        this.transactionService = transactionService;
+        this.categoryService = categoryService;
+        this.transactionParser = transactionParser;
     }
 
     @Override
@@ -44,8 +57,59 @@ public class TelegramBot extends TelegramLongPollingBot {
         String messageText = message.getText();
         long chatId = message.getChatId();
 
-        if (messageText.equals("/start")) {
-            sendWelcomeMessage(chatId);
+        if (messageText.startsWith("/")) {
+            if (messageText.equals("/start")) {
+                sendWelcomeMessage(chatId);
+            }
+            // Handle other commands if necessary
+            return;
+        }
+
+        // AI Parsing Flow
+        try {
+            logger.info("Processing free-text transaction: '{}'", messageText);
+            
+            List<String> availableCategories = categoryService.getAllCategories().stream()
+                    .map(budgetor.domain.Category::getName)
+                    .toList();
+            
+            ParsedTransactionDto parsed = transactionParser.parse(messageText, availableCategories);
+            var tx = transactionService.createTransaction(
+                    parsed.amount(),
+                    parsed.categoryName(),
+                    parsed.description(),
+                    parsed.type()
+            );
+
+            String response = """
+                    ✅ Записано:
+                    📝 Тип: %s
+                    💰 Сумма: %.2f ₽
+                    📂 Категория: %s
+                    📄 Описание: %s
+                    """.formatted(
+                            tx.getType() == budgetor.domain.TransactionType.EXPENSE ? "Расход" : "Доход",
+                            tx.getAmount(),
+                            tx.getCategory().getName(),
+                            tx.getDescription()
+                    );
+            
+            sendSimpleMessage(chatId, response);
+            
+        } catch (Exception e) {
+            logger.error("Error processing transaction: {}", e.getMessage());
+            sendSimpleMessage(chatId, "❌ Извини, не удалось распознать трату. Попробуй написать понятнее, например: 'обед 350'.");
+        }
+    }
+
+    private void sendSimpleMessage(long chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            logger.error("Error sending message: {}", e.getMessage());
         }
     }
 

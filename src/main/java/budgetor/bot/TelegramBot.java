@@ -6,13 +6,19 @@ import budgetor.service.TransactionParser;
 import budgetor.service.TransactionService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.springframework.core.io.ByteArrayResource;
+
+import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +52,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            handleTextMessage(update.getMessage());
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            if (message.hasText()) {
+                handleTextMessage(message);
+            } else if (message.hasPhoto()) {
+                handlePhotoMessage(message);
+            }
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
@@ -99,6 +110,66 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             logger.error("Error processing transaction: {}", e.getMessage());
             sendSimpleMessage(chatId, "❌ Извини, не удалось распознать трату. Попробуй написать понятнее, например: 'обед 350'.");
+        }
+    }
+
+    private void handlePhotoMessage(Message message) {
+        long chatId = message.getChatId();
+        List<PhotoSize> photos = message.getPhoto();
+        
+        if (photos == null || photos.isEmpty()) {
+            return;
+        }
+
+        // The last photo in the list is the largest one
+        PhotoSize largestPhoto = photos.get(photos.size() - 1);
+        String fileId = largestPhoto.getFileId();
+
+        try {
+            logger.info("Processing photo transaction: fileId={}", fileId);
+            
+            // 1. Get File Info
+            GetFile getFile = new GetFile();
+            getFile.setFileId(fileId);
+            File file = execute(getFile);
+
+            // 2. Download File
+            try (InputStream is = downloadFileAsStream(file)) {
+                byte[] bytes = is.readAllBytes();
+                ByteArrayResource resource = new ByteArrayResource(bytes);
+
+                // 3. AI Parsing flow
+                List<String> availableCategories = categoryService.getAllCategories().stream()
+                        .map(budgetor.domain.Category::getName)
+                        .toList();
+
+                ParsedTransactionDto parsed = transactionParser.parse(resource, availableCategories);
+                
+                var tx = transactionService.createTransaction(
+                        parsed.amount(),
+                        parsed.categoryName(),
+                        parsed.description(),
+                        parsed.type()
+                );
+
+                String response = """
+                        ✅ Записано:
+                        📝 Тип: %s
+                        💰 Сумма: %.2f ₽
+                        📂 Категория: %s
+                        📄 Описание: %s
+                        """.formatted(
+                        tx.getType() == budgetor.domain.TransactionType.EXPENSE ? "Расход" : "Доход",
+                        tx.getAmount(),
+                        tx.getCategory().getName(),
+                        tx.getDescription()
+                );
+
+                sendSimpleMessage(chatId, response);
+            }
+        } catch (Exception e) {
+            logger.error("Error processing photo transaction: {}", e.getMessage(), e);
+            sendSimpleMessage(chatId, "❌ Извини, не удалось распознать трату на фото. Попробуй сделать фото четче или отправь текст.");
         }
     }
 

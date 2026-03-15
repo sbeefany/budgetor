@@ -13,11 +13,17 @@ import org.mockito.ArgumentCaptor;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayInputStream;
+import org.jeasy.random.EasyRandom;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +38,7 @@ class TelegramBotTest {
     private TransactionService transactionService;
     private CategoryService categoryService;
     private TransactionParser transactionParser;
+    private EasyRandom easyRandom;
 
     @BeforeEach
     void setUp() {
@@ -40,23 +47,20 @@ class TelegramBotTest {
         categoryService = mock(CategoryService.class);
         transactionParser = mock(TransactionParser.class);
         
-        when(config.getToken()).thenReturn("test-token");
-        when(config.getUsername()).thenReturn("test-bot");
-        
+        easyRandom = new EasyRandom();
         telegramBot = spy(new TelegramBot(config, transactionService, categoryService, transactionParser));
     }
 
     @Test
     void onUpdateReceived_withStartCommand_sendsWelcomeMessage() throws TelegramApiException {
         // Given
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        
-        when(update.hasMessage()).thenReturn(true);
-        when(update.getMessage()).thenReturn(message);
-        when(message.hasText()).thenReturn(true);
-        when(message.getText()).thenReturn("/start");
-        when(message.getChatId()).thenReturn(12345L);
+        Update update = new Update();
+        Message message = new Message();
+        update.setMessage(message);
+        message.setText("/start");
+        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
+        chat.setId(12345L);
+        message.setChat(chat);
 
         doReturn(null).when(telegramBot).execute(any(SendMessage.class));
 
@@ -87,15 +91,16 @@ class TelegramBotTest {
     @Test
     void onUpdateReceived_withCallbackQuery_sendsProperResponse() throws TelegramApiException {
         // Given
-        Update update = mock(Update.class);
-        CallbackQuery callbackQuery = mock(CallbackQuery.class);
-        Message message = mock(Message.class);
-
-        when(update.hasCallbackQuery()).thenReturn(true);
-        when(update.getCallbackQuery()).thenReturn(callbackQuery);
-        when(callbackQuery.getData()).thenReturn("menu_balance");
-        when(callbackQuery.getMessage()).thenReturn(message);
-        when(message.getChatId()).thenReturn(12345L);
+        Update update = new Update();
+        CallbackQuery callbackQuery = new CallbackQuery();
+        Message message = new Message();
+        
+        update.setCallbackQuery(callbackQuery);
+        callbackQuery.setData("menu_balance");
+        callbackQuery.setMessage(message);
+        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
+        chat.setId(12345L);
+        message.setChat(chat);
 
         doReturn(null).when(telegramBot).execute(any(SendMessage.class));
 
@@ -114,27 +119,29 @@ class TelegramBotTest {
     @Test
     void onUpdateReceived_withTransactionText_parsesAndSaves() throws TelegramApiException {
         // Given
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        
-        when(update.hasMessage()).thenReturn(true);
-        when(update.getMessage()).thenReturn(message);
-        when(message.hasText()).thenReturn(true);
-        when(message.getText()).thenReturn("обед 350");
-        when(message.getChatId()).thenReturn(12345L);
+        Update update = new Update();
+        Message message = new Message();
+        update.setMessage(message);
+        message.setText("обед 350");
+        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
+        chat.setId(12345L);
+        message.setChat(chat);
 
-        Category category = new Category();
+        Category category = easyRandom.nextObject(Category.class);
         category.setName("Еда");
         category.setType(TransactionType.EXPENSE);
         
-        Transaction tx = new Transaction();
+        Transaction tx = easyRandom.nextObject(Transaction.class);
         tx.setAmount(new BigDecimal("350"));
         tx.setCategory(category);
         tx.setType(TransactionType.EXPENSE);
         tx.setDescription("обед");
 
+        // We can use random values or override specific ones if needed for verification
+        ParsedTransactionDto expectedDto = new ParsedTransactionDto(new BigDecimal("350"), "Еда", "обед", TransactionType.EXPENSE);
+
         when(categoryService.getAllCategories()).thenReturn(Collections.singletonList(category));
-        when(transactionParser.parse(anyString(), anyList())).thenReturn(new ParsedTransactionDto(new BigDecimal("350"), "Еда", "обед", TransactionType.EXPENSE));
+        when(transactionParser.parse(anyString(), anyList())).thenReturn(expectedDto);
         when(transactionService.createTransaction(any(), any(), any(), any())).thenReturn(tx);
 
         doReturn(null).when(telegramBot).execute(any(SendMessage.class));
@@ -155,14 +162,13 @@ class TelegramBotTest {
     @Test
     void onUpdateReceived_withParsingError_sendsErrorMessage() throws TelegramApiException {
         // Given
-        Update update = mock(Update.class);
-        Message message = mock(Message.class);
-        
-        when(update.hasMessage()).thenReturn(true);
-        when(update.getMessage()).thenReturn(message);
-        when(message.hasText()).thenReturn(true);
-        when(message.getText()).thenReturn("invalid input");
-        when(message.getChatId()).thenReturn(12345L);
+        Update update = new Update();
+        Message message = new Message();
+        update.setMessage(message);
+        message.setText("invalid input");
+        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
+        chat.setId(12345L);
+        message.setChat(chat);
 
         when(transactionParser.parse(anyString(), anyList())).thenThrow(new RuntimeException("AI error"));
 
@@ -175,5 +181,55 @@ class TelegramBotTest {
         ArgumentCaptor<SendMessage> captor = ArgumentCaptor.forClass(SendMessage.class);
         verify(telegramBot).execute(captor.capture());
         assertThat(captor.getValue().getText()).contains("Извини, не удалось распознать трату");
+    }
+    @Test
+    void onUpdateReceived_withPhoto_parsesAndSaves() throws TelegramApiException {
+        // Given
+        Update update = new Update();
+        Message message = new Message();
+        PhotoSize photoSize = new PhotoSize();
+        
+        update.setMessage(message);
+        message.setPhoto(Collections.singletonList(photoSize));
+        photoSize.setFileId("file-id");
+        org.telegram.telegrambots.meta.api.objects.Chat chat = new org.telegram.telegrambots.meta.api.objects.Chat();
+        chat.setId(12345L);
+        message.setChat(chat);
+
+        Category category = easyRandom.nextObject(Category.class);
+        category.setName("Еда");
+        category.setType(TransactionType.EXPENSE);
+        
+        Transaction tx = easyRandom.nextObject(Transaction.class);
+        tx.setAmount(new BigDecimal("100"));
+        tx.setCategory(category);
+        tx.setType(TransactionType.EXPENSE);
+        tx.setDescription("чек");
+
+        ParsedTransactionDto expectedDto = new ParsedTransactionDto(new BigDecimal("100"), "Еда", "чек", TransactionType.EXPENSE);
+
+        File file = new File();
+        file.setFilePath("path/to/file");
+        
+        doReturn(file).when(telegramBot).execute(any(GetFile.class));
+        doReturn(new ByteArrayInputStream("test-image".getBytes())).when(telegramBot).downloadFileAsStream(any(File.class));
+
+        when(categoryService.getAllCategories()).thenReturn(Collections.singletonList(category));
+        when(transactionParser.parse(any(Resource.class), anyList())).thenReturn(expectedDto);
+        when(transactionService.createTransaction(any(), any(), any(), any())).thenReturn(tx);
+
+        doReturn(null).when(telegramBot).execute(any(SendMessage.class));
+
+        // When
+        telegramBot.onUpdateReceived(update);
+
+        // Then
+        verify(transactionParser).parse(any(Resource.class), anyList());
+        verify(transactionService).createTransaction(eq(new BigDecimal("100")), eq("Еда"), eq("чек"), eq(TransactionType.EXPENSE));
+        
+        ArgumentCaptor<SendMessage> captor = ArgumentCaptor.forClass(SendMessage.class);
+        verify(telegramBot).execute(captor.capture());
+        assertThat(captor.getValue().getText()).contains("Записано");
+        assertThat(captor.getValue().getText()).contains("100");
     }
 }

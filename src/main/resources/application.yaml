@@ -29,4 +29,8 @@ logging:
     name: logs/application.log
 
 server:
-  port: 8080
+
+telegram:
+  bot:
+    username: ${TELEGRAM_BOT_USERNAME:budgetor_bot}
+    token: ${TELEGRAM_BOT_TOKEN}

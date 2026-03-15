@@ -24,6 +24,7 @@ Tracking personal expenses is tedious — most people forget to log spending or 
 - Telegram bot as the sole interface
 - Single user, no authentication (bot token + single chat ID)
 - Natural language expense/income input parsed by **Spring AI**
+- Recognize receipts and expenses from photos (AI Vision)
 - Transaction categories: default categories from resources + AI can create new ones (with deduplication)
 - Set initial balance
 - Log income and expenses
@@ -39,7 +40,6 @@ Tracking personal expenses is tedious — most people forget to log spending or 
 - Multi-user / authentication
 - Multiple currencies
 - Bank integrations / auto-import
-- Receipt scanning / photo recognition
 - Web or mobile UI
 - Export to CSV/Excel
 - Recurring transactions (auto-repeat)
@@ -73,6 +73,7 @@ Tracking personal expenses is tedious — most people forget to log spending or 
 | # | User Story |
 |---|-----------|
 | US-1 | Send a free-text message like _"обед 350"_ — bot parses it into a structured expense (amount, category, description) |
+| US-1.1 | Send a photo of a receipt or expenses — bot parses the photo into a structured expense |
 | US-2 | Log income by sending messages like _"зарплата 80000"_ |
 | US-3 | Set initial balance |
 | US-4 | See current balance (remaining money after all income and expenses) |

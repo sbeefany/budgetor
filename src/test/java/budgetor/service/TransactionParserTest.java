@@ -42,8 +42,10 @@ class TransactionParserTest {
     void setUp() {
         var systemPrompt = new ByteArrayResource("System {format}".getBytes(StandardCharsets.UTF_8));
         var userPrompt = new ByteArrayResource("User {text} {categories}".getBytes(StandardCharsets.UTF_8));
+        var visionSystemPrompt = new ByteArrayResource("Vision System {format}".getBytes(StandardCharsets.UTF_8));
+        var visionUserPrompt = new ByteArrayResource("Vision User {categories}".getBytes(StandardCharsets.UTF_8));
         
-        transactionParser = new TransactionParserImpl(chatClient, systemPrompt, userPrompt);
+        transactionParser = new TransactionParserImpl(chatClient, systemPrompt, userPrompt, visionSystemPrompt, visionUserPrompt);
     }
 
     @Test
@@ -70,5 +72,29 @@ class TransactionParserTest {
                 .contains("Обед 350")
                 .contains("Еда")
                 .contains("Транспорт");
+    }
+    @Test
+    void shouldCallChatClientWithImagePrompt() {
+        // given
+        var imageResource = new ByteArrayResource("fake image data".getBytes());
+        List<String> categories = List.of("Еда", "Транспорт");
+
+        String dummyResponse = "{\"amount\":1200,\"categoryName\":\"Еда\",\"description\":\"Ресторан\",\"type\":\"EXPENSE\"}";
+        when(chatClient.call(any(Prompt.class))).thenReturn(chatResponse);
+        when(chatResponse.getResult()).thenReturn(generation);
+        when(generation.getOutput()).thenReturn(new org.springframework.ai.chat.messages.AssistantMessage(dummyResponse));
+
+        // when
+        transactionParser.parse(imageResource, categories);
+
+        // then
+        verify(chatClient).call(promptCaptor.capture());
+        Prompt capturedPrompt = promptCaptor.getValue();
+        
+        assertThat(capturedPrompt.getInstructions().get(1).getContent())
+                .contains("Vision User");
+        
+        assertThat(((org.springframework.ai.chat.messages.UserMessage)capturedPrompt.getInstructions().get(1)).getMedia())
+                .hasSize(1);
     }
 }

@@ -1,6 +1,5 @@
 package budgetor.bot;
 
-import budgetor.dto.ParsedTransactionDto;
 import budgetor.service.CategoryService;
 import budgetor.service.TransactionParser;
 import budgetor.service.TransactionService;
@@ -9,16 +8,16 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.springframework.core.io.ByteArrayResource;
 
 import java.io.InputStream;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +52,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            Message message = update.getMessage();
+            var message = update.getMessage();
             if (message.hasText()) {
                 handleTextMessage(message);
             } else if (message.hasPhoto()) {
@@ -65,8 +64,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handleTextMessage(Message message) {
-        String messageText = message.getText();
-        long chatId = message.getChatId();
+        var messageText = message.getText();
+        var chatId = message.getChatId();
 
         if (messageText.startsWith("/")) {
             if (messageText.equals("/start")) {
@@ -80,19 +79,19 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             logger.info("Processing free-text transaction: '{}'", messageText);
             
-            List<String> availableCategories = categoryService.getAllCategories().stream()
+            var availableCategories = categoryService.getAllCategories().stream()
                     .map(budgetor.domain.Category::getName)
                     .toList();
             
-            ParsedTransactionDto parsed = transactionParser.parse(messageText, availableCategories);
+            var parsed = transactionParser.parse(messageText, availableCategories);
             var tx = transactionService.createTransaction(
                     parsed.amount(),
                     parsed.categoryName(),
                     parsed.description(),
                     parsed.type()
             );
-
-            String response = """
+            
+            var response = """
                     ✅ Записано:
                     📝 Тип: %s
                     💰 Сумма: %.2f ₽
@@ -105,7 +104,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                             tx.getDescription()
                     );
             
-            sendSimpleMessage(chatId, response);
+            sendConfirmationWithCancel(chatId, tx, response);
             
         } catch (Exception e) {
             logger.error("Error processing transaction: {}", e.getMessage());
@@ -114,36 +113,36 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handlePhotoMessage(Message message) {
-        long chatId = message.getChatId();
-        List<PhotoSize> photos = message.getPhoto();
+        var chatId = message.getChatId();
+        var photos = message.getPhoto();
         
         if (photos == null || photos.isEmpty()) {
             return;
         }
 
         // The last photo in the list is the largest one
-        PhotoSize largestPhoto = photos.get(photos.size() - 1);
-        String fileId = largestPhoto.getFileId();
+        var largestPhoto = photos.get(photos.size() - 1);
+        var fileId = largestPhoto.getFileId();
 
         try {
             logger.info("Processing photo transaction: fileId={}", fileId);
             
             // 1. Get File Info
-            GetFile getFile = new GetFile();
+            var getFile = new GetFile();
             getFile.setFileId(fileId);
-            File file = execute(getFile);
+            var file = execute(getFile);
 
             // 2. Download File
             try (InputStream is = downloadFileAsStream(file)) {
-                byte[] bytes = is.readAllBytes();
-                ByteArrayResource resource = new ByteArrayResource(bytes);
+                var bytes = is.readAllBytes();
+                var resource = new ByteArrayResource(bytes);
 
                 // 3. AI Parsing flow
-                List<String> availableCategories = categoryService.getAllCategories().stream()
+                var availableCategories = categoryService.getAllCategories().stream()
                         .map(budgetor.domain.Category::getName)
                         .toList();
 
-                ParsedTransactionDto parsed = transactionParser.parse(resource, availableCategories);
+                var parsed = transactionParser.parse(resource, availableCategories);
                 
                 var tx = transactionService.createTransaction(
                         parsed.amount(),
@@ -152,7 +151,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         parsed.type()
                 );
 
-                String response = """
+                var response = """
                         ✅ Записано:
                         📝 Тип: %s
                         💰 Сумма: %.2f ₽
@@ -165,7 +164,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         tx.getDescription()
                 );
 
-                sendSimpleMessage(chatId, response);
+                sendConfirmationWithCancel(chatId, tx, response);
             }
         } catch (Exception e) {
             logger.error("Error processing photo transaction: {}", e.getMessage(), e);
@@ -174,7 +173,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void sendSimpleMessage(long chatId, String text) {
-        SendMessage message = new SendMessage();
+        var message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
         try {
@@ -185,8 +184,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handleCallbackQuery(CallbackQuery callbackQuery) {
-        String callbackData = callbackQuery.getData();
-        long chatId = callbackQuery.getMessage().getChatId();
+        var callbackData = callbackQuery.getData();
+        var chatId = callbackQuery.getMessage().getChatId();
         String responseText;
 
         switch (callbackData) {
@@ -195,10 +194,16 @@ public class TelegramBot extends TelegramLongPollingBot {
             case "menu_goals" -> responseText = "🎯 Твои финансовые цели: пока не заданы.";
             case "menu_categories" -> responseText = "📋 Доступные категории: Еда, Жилье, Транспорт...";
             case "menu_tips" -> responseText = "💡 Совет дня: старайся не тратить больше, чем зарабатываешь!";
-            default -> responseText = "Извини, я пока не знаю эту команду.";
+            default -> {
+                if (callbackData.startsWith("tx_cancel:")) {
+                    handleTransactionCancel(callbackQuery);
+                    return;
+                }
+                responseText = "Извини, я пока не знаю эту команду.";
+            }
         }
 
-        SendMessage message = new SendMessage();
+        var message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(responseText);
 
@@ -224,23 +229,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                 
                 Выбери действие ниже или просто начни вводить траты!
                 """;
-        SendMessage message = new SendMessage();
+        var message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(welcomeText);
 
         // Create Inline Keyboard
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        var markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        var row1 = new ArrayList<InlineKeyboardButton>();
         row1.add(createButton("💰 Баланс", "menu_balance"));
         row1.add(createButton("📊 Сводка", "menu_summary"));
 
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        var row2 = new ArrayList<InlineKeyboardButton>();
         row2.add(createButton("🎯 Цели", "menu_goals"));
         row2.add(createButton("📋 Категории", "menu_categories"));
 
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
+        var row3 = new ArrayList<InlineKeyboardButton>();
         row3.add(createButton("💡 Совет", "menu_tips"));
 
         rowsInline.add(row1);
@@ -258,9 +263,51 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private InlineKeyboardButton createButton(String text, String callbackData) {
-        InlineKeyboardButton button = new InlineKeyboardButton();
+        var button = new InlineKeyboardButton();
         button.setText(text);
         button.setCallbackData(callbackData);
         return button;
+    }
+
+    private void sendConfirmationWithCancel(long chatId, budgetor.domain.Transaction tx, String text) {
+        var message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+
+        var markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        var row = new ArrayList<InlineKeyboardButton>();
+        row.add(createButton("❌ Отмена", "tx_cancel:" + tx.getId()));
+        rowsInline.add(row);
+        markupInline.setKeyboard(rowsInline);
+        message.setReplyMarkup(markupInline);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            logger.error("Error sending confirmation message: {}", e.getMessage());
+        }
+    }
+
+    private void handleTransactionCancel(CallbackQuery callbackQuery) {
+        var callbackData = callbackQuery.getData();
+        var txId = UUID.fromString(callbackData.split(":")[1]);
+        var chatId = callbackQuery.getMessage().getChatId();
+        var messageId = callbackQuery.getMessage().getMessageId();
+
+        try {
+            transactionService.deleteTransaction(txId);
+            logger.info("Transaction cancelled and deleted: {}", txId);
+
+            var editMessage = new EditMessageText();
+            editMessage.setChatId(String.valueOf(chatId));
+            editMessage.setMessageId(messageId);
+            editMessage.setText("🗑️ Запись удалена");
+            editMessage.setReplyMarkup(null);
+
+            execute(editMessage);
+        } catch (Exception e) {
+            logger.error("Error cancelling transaction: {}", e.getMessage());
+        }
     }
 }

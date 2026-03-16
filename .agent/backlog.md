@@ -46,7 +46,7 @@ Can be developed leveraging mocked Core Services and AI.
 | BOT-2 | Main Menu UI | P0 | complete | Implement the base Inline Keyboard returning Balance, Summary, Goals, Categories, Tips. | Menu is shown; button callbacks route properly. |
 | BOT-3 | AI Integration | P0 | complete | Route arbitrary free-text strings to the AI Parser -> save via Transaction Service -> respond. | User sends text; transaction saves; success message returned. |
 | BOT-3.1 | Photo Input | P1 | complete | Route photo messages to AI Vision parser -> save via Transaction Service -> respond. | User sends photo; transaction saves; success message returned. |
-| BOT-4 | Cancel Button | P0 | TODO | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |
+| BOT-4 | Cancel Button | P0 | complete | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |
 | BOT-5 | Commands Config | P0 | TODO | Bind Telegram inline button callbacks to BalanceService, SummaryService, GoalService outputs. | Pressing "Баланс" replies with the formatted balance. |
 
 ## Phase 6: Localization & Tech Debt

@@ -47,7 +47,7 @@ Can be developed leveraging mocked Core Services and AI.
 | BOT-3 | AI Integration | P0 | complete | Route arbitrary free-text strings to the AI Parser -> save via Transaction Service -> respond. | User sends text; transaction saves; success message returned. |
 | BOT-3.1 | Photo Input | P1 | complete | Route photo messages to AI Vision parser -> save via Transaction Service -> respond. | User sends photo; transaction saves; success message returned. |
 | BOT-4 | Cancel Button | P0 | complete | Append "❌ Отмена" inline button on transaction confirmations. Handle the callback to rollback (US-6, US-11). | Clicking visually feedback and removes the record. |
-| BOT-5 | Commands Config | P0 | TODO | Bind Telegram inline button callbacks to BalanceService, SummaryService, GoalService outputs. | Pressing "Баланс" replies with the formatted balance. |
+| BOT-5 | Commands Config | P0 | complete | Bind Telegram inline button callbacks to BalanceService, SummaryService, GoalService outputs. | Pressing "Баланс" replies with the formatted balance. |
 
 ## Phase 6: Localization & Tech Debt
 | Task ID | Component/Area | Priority | Status | Description/Notes | Acceptance Criteria |

@@ -3,6 +3,12 @@ package budgetor.bot;
 import budgetor.service.CategoryService;
 import budgetor.service.TransactionParser;
 import budgetor.service.TransactionService;
+import budgetor.service.SummaryService;
+import budgetor.service.GoalService;
+import budgetor.service.TipService;
+import budgetor.service.dto.SummaryDto;
+import budgetor.service.dto.CategorySummaryDto;
+import budgetor.dto.GoalProgressDto;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -32,16 +38,25 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final TransactionService transactionService;
     private final CategoryService categoryService;
     private final TransactionParser transactionParser;
+    private final SummaryService summaryService;
+    private final GoalService goalService;
+    private final TipService tipService;
 
     public TelegramBot(BotConfig config,
                        TransactionService transactionService,
                        CategoryService categoryService,
-                       TransactionParser transactionParser) {
+                       TransactionParser transactionParser,
+                       SummaryService summaryService,
+                       GoalService goalService,
+                       TipService tipService) {
         super(config.getToken());
         this.config = config;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
         this.transactionParser = transactionParser;
+        this.summaryService = summaryService;
+        this.goalService = goalService;
+        this.tipService = tipService;
     }
 
     @Override
@@ -189,11 +204,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         String responseText;
 
         switch (callbackData) {
-            case "menu_balance" -> responseText = "💰 Твой текущий баланс: 0 ₽";
-            case "menu_summary" -> responseText = "📊 Твоя сводка за этот месяц: пока данных нет.";
-            case "menu_goals" -> responseText = "🎯 Твои финансовые цели: пока не заданы.";
-            case "menu_categories" -> responseText = "📋 Доступные категории: Еда, Жилье, Транспорт...";
-            case "menu_tips" -> responseText = "💡 Совет дня: старайся не тратить больше, чем зарабатываешь!";
+            case "menu_balance" -> responseText = "💰 Твой текущий баланс: %.2f ₽".formatted(transactionService.getCurrentBalance());
+            case "menu_summary" -> responseText = formatSummary(summaryService.getSummary(
+                    java.time.LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0),
+                    java.time.LocalDateTime.now()));
+            case "menu_goals" -> responseText = formatGoals(goalService.getAllGoalProgresses());
+            case "menu_categories" -> responseText = formatCategories(categoryService.getAllCategories());
+            case "menu_tips" -> responseText = tipService.generateTip();
             default -> {
                 if (callbackData.startsWith("tx_cancel:")) {
                     handleTransactionCancel(callbackQuery);
@@ -309,5 +326,47 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             logger.error("Error cancelling transaction: {}", e.getMessage());
         }
+    }
+
+    private String formatSummary(SummaryDto summary) {
+        var sb = new StringBuilder("📊 Сводка за этот месяц:\n\n");
+        sb.append("Доходы: %.2f ₽\n".formatted(summary.totalIncome()));
+        sb.append("Расходы: %.2f ₽\n\n".formatted(summary.totalExpenses()));
+        
+        if (!summary.expensesByCategory().isEmpty()) {
+            sb.append("По категориям:\n");
+            for (CategorySummaryDto cat : summary.expensesByCategory()) {
+                sb.append("• %s: %.2f ₽\n".formatted(cat.categoryName(), cat.totalAmount()));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String formatGoals(List<GoalProgressDto> goals) {
+        if (goals.isEmpty()) {
+            return "🎯 Твои финансовые цели: пока не заданы.";
+        }
+        var sb = new StringBuilder("🎯 Твои финансовые цели:\n\n");
+        for (GoalProgressDto goal : goals) {
+            sb.append("• %s: %.2f / %.2f (%.2f%%)\n".formatted(
+                    goal.name(), 
+                    goal.currentAmount(), 
+                    goal.targetAmount(), 
+                    goal.progressPercentage()));
+        }
+        return sb.toString();
+    }
+
+    private String formatCategories(List<budgetor.domain.Category> categories) {
+        if (categories.isEmpty()) {
+            return "📋 Список категорий пуст.";
+        }
+        var sb = new StringBuilder("📋 Доступные категории:\n\n");
+        for (budgetor.domain.Category cat : categories) {
+            sb.append("• %s (%s)\n".formatted(
+                    cat.getName(), 
+                    cat.getType() == budgetor.domain.TransactionType.EXPENSE ? "Расход" : "Доход"));
+        }
+        return sb.toString();
     }
 }
